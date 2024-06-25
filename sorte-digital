@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorte Digital</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            text-align: center;
+            background-color: #fff;
+        }
+        .header {
+            width: 100%;
+            background-color: #4ca555;
+            text-align: center;
+            padding: 0;
+            color: white;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+        }
+        .header h1 {
+            font-size: 96px;
+            margin: 0;
+            line-height: 1;
+            color: white; /* Cor do texto "Sorte Digital" em branco */
+        }
+        .generator {
+            background-color: #f5c20b; /* Fundo amarelo */
+            color: white; /* Cor do texto dos botões em branco */
+            padding: 15px 30px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            width: 200px;
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Poppins', sans-serif; /* Fonte Poppins */
+            font-weight: 700; /* Negrito */
+        }
+        .jogo {
+            margin: 40px 20px 10px;
+            background-color: #fefec6;
+            border: 1px solid #505969;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .linha {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .quadrado-preto {
+            width: 10px;
+            height: 10px;
+            background-color: black;
+            margin-right: 5px;
+        }
+        .bolinhas {
+            display: flex;
+        }
+        .bolinha {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+            border: 1px solid red;
+            background-color: white;
+        }
+        .pintada {
+            background-color: #4ca555;
+            color: white;
+        }
+        .footer {
+            width: 100%;
+            background-color: #4ca555;
+            height: 60px;
+            position: relative;
+            margin-top: 40px;
+        }
+        .coluna-topo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+        .coluna-topo .quadrado-preto {
+            margin: 0 45px;
+        }
+        .table-container {
+            margin-top: 20px;
+            width: 300px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #505969;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        .input-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .input-dezenas {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #505969;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Sorte Digital</h1>
+        <button class="generator" id="generateButton" onclick="toggleGames()">SORTEAR</button>
+    </div>
+    <div class="jogo" id="jogo1"></div>
+    <div class="table-container">
+        <table id="resultadoTable">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Dezenas Sorteadas</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="input-container" id="inputContainer">
+        <input type="text" class="input-dezenas" id="inputDezenas" placeholder="Digite suas dezenas (ex: 1, 2, 3)">
+    </div>
+    <div class="footer"></div>
+
+    <script>
+        function initializeBoard() {
+            const container = document.getElementById('jogo1');
+            container.innerHTML = '';
+            const numeros = Array.from({ length: 30 }, (_, i) => i + 1);
+
+            for (let linha = 0; linha < 6; linha++) {
+                const linhaDiv = document.createElement('div');
+                linhaDiv.classList.add('linha');
+
+                for (let coluna = 0; coluna < 5; coluna++) {
+                    const numero = numeros[linha * 5 + coluna];
+                    const div = document.createElement('div');
+                    div.classList.add('bolinha');
+                    div.textContent = numero;
+                    linhaDiv.appendChild(div);
+                }
+
+                container.appendChild(linhaDiv);
+            }
+        }
+
+        function generateGames() {
+            const inputDezenas = document.getElementById('inputDezenas').value.trim();
+            const selecionados = new Set();
+
+            if (inputDezenas) {
+                const dezenas = inputDezenas.split(',').map(Number).filter(n => n > 0 && n <= 30);
+                if (dezenas.length === 3) {
+                    dezenas.forEach(n => selecionados.add(n));
+                }
+            }
+
+            if (selecionados.size < 3) {
+                const numeros = Array.from({ length: 30 }, (_, i) => i + 1);
+                while (selecionados.size < 3) {
+                    const index = Math.floor(Math.random() * numeros.length);
+                    selecionados.add(numeros[index]);
+                }
+            }
+
+            const container = document.getElementById('jogo1');
+            const bolinhas = container.querySelectorAll('.bolinha');
+            bolinhas.forEach(bolinha => {
+                const numero = parseInt(bolinha.textContent);
+                if (selecionados.has(numero)) {
+                    bolinha.classList.add('pintada');
+                } else {
+                    bolinha.classList.remove('pintada');
+                }
+            });
+
+            atualizarTabela();
+            document.getElementById('inputDezenas').value = '';
+        }
+
+        function clearGames() {
+            const container = document.getElementById('jogo1');
+            const bolinhas = container.querySelectorAll('.bolinha');
+            bolinhas.forEach(bolinha => {
+                bolinha.classList.remove('pintada');
+            });
+            const tableBody = document.getElementById('resultadoTable').querySelector('tbody');
+            tableBody.innerHTML = ''; // Limpar a tabela
+        }
+
+        function toggleGames() {
+            const button = document.getElementById('generateButton');
+            const inputContainer = document.getElementById('inputContainer');
+            if (button.innerText.includes('SORTEAR')) {
+                generateGames();
+                button.innerText = 'LIMPAR SORTEIO';
+                inputContainer.style.display = 'block';
+            } else {
+                clearGames();
+                button.innerText = 'SORTEAR';
+                inputContainer.style.display = 'none';
+            }
+        }
+
+        function atualizarTabela() {
+            const tableBody = document.getElementById('resultadoTable').querySelector('tbody');
+            const novaLinha = document.createElement('tr');
+            const dataAtual = new Date().toLocaleDateString('pt-BR');
+            const dezenas = Array.from(document.querySelectorAll('.bolinha.pintada')).map(b => b.textContent).join(', ');
+
+            const colunaData = document.createElement('td');
+            colunaData.textContent = dataAtual;
+            const colunaDezenas = document.createElement('td');
+            colunaDezenas.textContent = dezenas;
+
+            novaLinha.appendChild(colunaData);
+            novaLinha.appendChild(colunaDezenas);
+            tableBody.appendChild(novaLinha);
+        }
+
+        window.onload = initializeBoard;
+    </script>
+</body>
+</html>
