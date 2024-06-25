@@ -29,14 +29,14 @@
             height: 100px;
         }
         .header h1 {
-            font-size: 48px; /* Tamanho reduzido */
+            font-size: 48px;
             margin: 0;
             line-height: 1;
-            color: white; /* Cor do texto "Sorte Digital" em branco */
+            color: white;
         }
         .generator {
-            background-color: #f5c20b; /* Fundo amarelo */
-            color: white; /* Cor do texto dos botões em branco */
+            background-color: #f5c20b;
+            color: white;
             padding: 15px 30px;
             border: none;
             cursor: pointer;
@@ -47,8 +47,8 @@
             bottom: -30px;
             left: 50%;
             transform: translateX(-50%);
-            font-family: 'Poppins', sans-serif; /* Fonte Poppins */
-            font-weight: 700; /* Negrito */
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
         }
         .jogo {
             margin: 40px 20px 10px;
@@ -86,6 +86,9 @@
         .pintada {
             background-color: #4ca555;
             color: white;
+        }
+        .highlight {
+            background-color: #ffeb3b;
         }
         .footer {
             width: 100%;
@@ -174,7 +177,23 @@
             }
         }
 
-        function generateGames() {
+        function highlightRandomBall() {
+            const bolinhas = document.querySelectorAll('.bolinha');
+            const index = Math.floor(Math.random() * bolinhas.length);
+            const selectedBall = bolinhas[index];
+
+            // Remove highlight from all balls
+            bolinhas.forEach(bolinha => bolinha.classList.remove('highlight'));
+
+            // Highlight the selected ball
+            selectedBall.classList.add('highlight');
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function generateGames() {
             const inputDezenas = document.getElementById('inputDezenas').value.trim();
             const selecionados = new Set();
 
@@ -195,14 +214,21 @@
 
             const container = document.getElementById('jogo1');
             const bolinhas = container.querySelectorAll('.bolinha');
-            bolinhas.forEach(bolinha => {
-                const numero = parseInt(bolinha.textContent);
-                if (selecionados.has(numero)) {
-                    bolinha.classList.add('pintada');
-                } else {
-                    bolinha.classList.remove('pintada');
+
+            for (const numero of selecionados) {
+                for (let i = 0; i < 50; i++) {
+                    highlightRandomBall();
+                    await sleep(100); // Wait for 100ms
                 }
-            });
+
+                bolinhas.forEach(bolinha => {
+                    if (parseInt(bolinha.textContent) === numero) {
+                        bolinha.classList.add('pintada');
+                    }
+                });
+
+                await sleep(500); // Wait for 500ms before selecting the next number
+            }
 
             atualizarTabela();
             document.getElementById('inputDezenas').value = '';
@@ -213,6 +239,7 @@
             const bolinhas = container.querySelectorAll('.bolinha');
             bolinhas.forEach(bolinha => {
                 bolinha.classList.remove('pintada');
+                bolinha.classList.remove('highlight');
             });
             const tableBody = document.getElementById('resultadoTable').querySelector('tbody');
             tableBody.innerHTML = ''; // Limpar a tabela
